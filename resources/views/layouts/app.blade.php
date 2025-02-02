@@ -3,146 +3,179 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Workout Logger')</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>@yield('title', 'FitTrack - Your Fitness Journey')</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        .sidebar {
-            transform: translateX(-100%);
-            transition: transform 0.3s ease-in-out;
+        :root {
+            --blood-orange: #FF5349;
+            --slate-gray: #2D3748;
+            --white: #ffffff;
         }
-        .sidebar.open {
-            transform: translateX(0);
+
+        body {
+            padding-top: 76px;
+            font-family: 'Inter', sans-serif;
+            color: var(--slate-gray);
         }
-        .overlay {
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease-in-out;
+
+        h1, h2, h3, h4, h5, h6, .navbar-brand {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
         }
-        .overlay.open {
-            opacity: 0.5;
-            visibility: visible;
+
+        .landing-page {
+            margin-top: -76px;
+        }
+
+        /* Button Styles */
+        .btn {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 8px;
+            font-weight: 500;
+            padding: 0.5rem 1.25rem;
+        }
+
+        .btn-primary {
+            background-color: var(--blood-orange);
+            border-color: var(--blood-orange);
+            color: var(--white);
+        }
+
+        .btn-primary:hover, .btn-primary:focus {
+            background-color: #ff4339;
+            border-color: #ff4339;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 83, 73, 0.2);
+        }
+
+        .btn-outline-primary {
+            color: var(--blood-orange);
+            border-color: var(--blood-orange);
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--blood-orange);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            transition: all 0.3s ease;
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-size: 1.5rem;
+            color: var(--blood-orange) !important;
+        }
+
+        .navbar.bg-transparent {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(45, 55, 72, 0.1);
+        }
+
+        .nav-link {
+            color: var(--slate-gray);
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--blood-orange);
+        }
+
+        /* Animation Classes */
+        .animate-bounce {
+            animation: bounce 0.5s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Form Styles */
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid rgba(45, 55, 72, 0.2);
+            padding: 0.75rem 1rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--blood-orange);
+            box-shadow: 0 0 0 3px rgba(255, 83, 73, 0.1);
+        }
+
+        /* Card Styles */
+        .card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(45, 55, 72, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(45, 55, 72, 0.1);
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Mobile Sidebar -->
-    <div class="overlay fixed inset-0 bg-black z-40" id="overlay"></div>
-    <div class="sidebar fixed inset-y-0 left-0 w-64 bg-white shadow-lg z-50 md:hidden">
-        <div class="p-4 border-b">
-            <div class="flex items-center justify-between">
-                <span class="text-xl font-bold text-gray-800">Menu</span>
-                <button id="closeSidebar" class="text-gray-500 hover:text-gray-700">
-                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-        </div>
-        <nav class="p-4">
-            <div class="space-y-4">
-                <a href="{{ route('exercises.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
-                    Exercise Progress
-                </a>
-                <a href="{{ route('exercises.create') }}" class="flex items-center px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-md">
-                    Add New Exercise
-                </a>
-                <a href="{{ route('weight.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
-                    Weight Tracking
-                </a>
-                <a href="{{ route('meals.index') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
-                    Meal Logger
-                </a>
-                <a href="{{ route('calories.calculator') }}" class="flex items-center px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md">
-                    Calorie Calculator
-                </a>
-            </div>
-        </nav>
-    </div>
+<body>
     <!-- Navigation -->
-    <nav class="bg-white shadow">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center">
-                    <button id="openSidebar" class="md:hidden mr-4 text-gray-500 hover:text-gray-700">
-                        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-                        </svg>
-                    </button>
-                    <div class="flex-shrink-0 flex items-center">
-                        <a href="{{ route('exercises.index') }}" class="text-xl font-bold text-gray-800">
-                            Workout Logger
-                        </a>
-                    </div>
-                    @auth
-                        <!-- Desktop Navigation -->
-                        <div class="hidden md:ml-6 md:flex md:space-x-8">
-                            <a href="{{ route('exercises.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
-                                Exercise Progress
-                            </a>
-                            <a href="{{ route('exercises.create') }}" class="inline-flex items-center px-1 pt-1 text-blue-600 hover:text-blue-700">
-                                Add New Exercise
-                            </a>
-                            <a href="{{ route('weight.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
-                                Weight Tracking
-                            </a>
-                            <a href="{{ route('meals.index') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
-                                Meal Logger
-                            </a>
-                            <a href="{{ route('calories.calculator') }}" class="inline-flex items-center px-1 pt-1 text-gray-500 hover:text-gray-700">
-                                Calorie Calculator
-                            </a>
-                        </div>
-                    @endauth
-                </div>
-                <div class="flex items-center">
-                    @auth
-                        <div class="flex items-center space-x-4">
-                            <span class="text-gray-700">{{ Auth::user()->name }}</span>
-                            <form method="POST" action="{{ route('logout') }}">
-                                @csrf
-                                <button type="submit" class="text-gray-500 hover:text-gray-700">
-                                    Logout
-                                </button>
-                            </form>
-                        </div>
-                    @else
-                        <div class="space-x-4">
-                            <a href="{{ route('login') }}" class="text-gray-500 hover:text-gray-700">Login</a>
-                            <a href="{{ route('register') }}" class="text-gray-500 hover:text-gray-700">Register</a>
-                        </div>
-                    @endauth
+    <nav class="navbar navbar-expand-lg fixed-top @if(Route::is('home')) bg-transparent @else bg-white shadow-sm @endif">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
+                <i class="fas fa-dumbbell me-2 @if(Route::is('home')) gradient-text @endif"></i>
+                <span class="@if(Route::is('home')) gradient-text @endif">FitTrack</span>
+            </a>
+            
+            @auth
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('exercises.index') }}">Exercise Progress</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('weight.index') }}">Weight Tracking</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('meals.index') }}">Meal Logger</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('calories.calculator') }}">Calorie Calculator</a>
+                    </li>
+                </ul>
+                <div class="d-flex align-items-center">
+                    <span class="me-3">{{ Auth::user()->name }}</span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="btn btn-outline-primary">Logout</button>
+                    </form>
                 </div>
             </div>
+            @else
+            <div class="d-flex gap-2">
+                <a href="{{ route('login') }}" class="btn btn-outline-primary">Login</a>
+                <a href="{{ route('register') }}" class="btn btn-primary">Register</a>
+            </div>
+            @endauth
         </div>
     </nav>
 
     <!-- Page Content -->
-    <main class="py-4">
+    <main>
         @yield('content')
     </main>
 
-    <script>
-        // Mobile sidebar functionality
-        const sidebar = document.querySelector('.sidebar');
-        const overlay = document.querySelector('.overlay');
-        const openButton = document.querySelector('#openSidebar');
-        const closeButton = document.querySelector('#closeSidebar');
-
-        function openSidebar() {
-            sidebar.classList.add('open');
-            overlay.classList.add('open');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeSidebar() {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('open');
-            document.body.style.overflow = '';
-        }
-
-        openButton.addEventListener('click', openSidebar);
-        closeButton.addEventListener('click', closeSidebar);
-        overlay.addEventListener('click', closeSidebar);
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

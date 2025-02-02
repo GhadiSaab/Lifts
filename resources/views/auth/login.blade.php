@@ -1,70 +1,139 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Workout Logger')
+@section('title', 'Login - FitTrack')
 
 @section('content')
-    <div class="min-h-screen flex items-center justify-center">
-        <div class="max-w-md w-full space-y-8 p-8 bg-white rounded-lg shadow">
-            <div>
-                <h2 class="text-center text-3xl font-bold text-gray-900">
-                    Sign in to your account
-                </h2>
-                <p class="mt-2 text-center text-sm text-gray-600">
-                    Or
-                    <a href="{{ route('register') }}" class="font-medium text-blue-600 hover:text-blue-500">
-                        create a new account
-                    </a>
-                </p>
-            </div>
-
-            @if($errors->any())
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-                    <ul class="list-disc list-inside">
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-
-            <form class="mt-8 space-y-6" action="{{ route('login') }}" method="POST">
-                @csrf
-                <div class="space-y-4">
-                    <div>
-                        <label for="email" class="block text-sm font-medium text-gray-700">
-                            Email address
-                        </label>
-                        <input id="email" name="email" type="email" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                            value="{{ old('email') }}">
+<div class="container">
+    <div class="row justify-content-center min-vh-100 align-items-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="fas fa-dumbbell fa-2x mb-3" style="color: var(--blood-orange);"></i>
+                        <h1 class="h3 mb-3">Welcome Back!</h1>
+                        <p class="text-muted mb-4">One rep closer to your goals</p>
                     </div>
 
-                    <div>
-                        <label for="password" class="block text-sm font-medium text-gray-700">
-                            Password
-                        </label>
-                        <input id="password" name="password" type="password" required
-                            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <input id="remember" name="remember" type="checkbox"
-                                class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                            <label for="remember" class="ml-2 block text-sm text-gray-900">
-                                Remember me
-                            </label>
+                    @if($errors->any())
+                        <div class="alert alert-danger mb-4">
+                            <ul class="mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-                    </div>
-                </div>
+                    @endif
 
-                <div>
-                    <button type="submit"
-                        class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                        Sign in
-                    </button>
+                    <form action="{{ route('login') }}" method="POST" class="needs-validation" novalidate>
+                        @csrf
+                        <div class="mb-4 position-relative">
+                            <label for="email" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="email" name="email" 
+                                value="{{ old('email') }}" required>
+                            <div class="valid-feedback">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-4 position-relative">
+                            <label for="password" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                            <div class="valid-feedback">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                                <label class="form-check-label" for="remember">Remember me</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 mb-4">
+                            Sign In
+                        </button>
+
+                        <p class="text-center mb-0">
+                            New to FitTrack? 
+                            <a href="{{ route('register') }}" class="text-decoration-none" style="color: var(--blood-orange);">
+                                Create account
+                            </a>
+                        </p>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input[required]');
+
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            if (this.checkValidity()) {
+                this.classList.add('is-valid');
+                this.classList.remove('is-invalid');
+            } else {
+                this.classList.remove('is-valid');
+                this.classList.add('is-invalid');
+            }
+        });
+    });
+
+    form.addEventListener('submit', function(event) {
+        if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+
+<style>
+.valid-feedback {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--blood-orange);
+    animation: checkmark 0.3s ease-in-out;
+}
+
+.form-control.is-valid {
+    border-color: var(--blood-orange);
+    padding-right: 2.5rem;
+    background-image: none;
+}
+
+.form-control.is-valid ~ .valid-feedback {
+    display: block;
+}
+
+@keyframes checkmark {
+    0% { transform: translateY(-50%) scale(0); }
+    70% { transform: translateY(-50%) scale(1.2); }
+    100% { transform: translateY(-50%) scale(1); }
+}
+
+.card {
+    animation: slideIn 0.5s ease-out;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
 @endsection

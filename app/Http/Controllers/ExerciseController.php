@@ -14,32 +14,42 @@ class ExerciseController extends Controller
         $this->middleware('auth');
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $exercises = Exercise::where('user_id', Auth::id())
-            ->with(['progress' => function ($query) {
-                $query->orderBy('date', 'desc');
-            }])
-            ->get();
+        $query = Exercise::where('user_id', Auth::id());
+        
+        if ($request->has('muscle_group')) {
+            $query->where('muscle_group', $request->muscle_group);
+        }
 
-        return view('exercises.index', compact('exercises'));
+        $exercises = $query->with(['progress' => function ($query) {
+            $query->orderBy('date', 'desc');
+        }])->get();
+
+        $muscleGroups = Exercise::getMuscleGroups();
+        $streak = Auth::user()->calculateStreak();
+
+        return view('exercises.index', compact('exercises', 'muscleGroups', 'streak'));
     }
 
     public function create()
     {
-        return view('exercises.create');
+        $muscleGroups = Exercise::getMuscleGroups();
+        return view('exercises.create', compact('muscleGroups'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:exercises,name,NULL,id,user_id,' . Auth::id(),
+            'muscle_group' => 'required|string|in:' . implode(',', Exercise::getMuscleGroups()),
             'notes' => 'nullable|string',
         ]);
 
         $exercise = Exercise::create([
             'user_id' => Auth::id(),
             'name' => $validated['name'],
+            'muscle_group' => $validated['muscle_group'],
             'notes' => $validated['notes'],
         ]);
 
@@ -55,11 +65,21 @@ class ExerciseController extends Controller
             ->orderBy('date', 'desc')
             ->get()
             ->map(function ($entry) {
-                return [
+                $data = [
                     'date' => $entry->date->format('Y-m-d'),
-                    'weight' => $entry->weight,
-                    'reps' => $entry->reps,
+                    'sets' => $entry->sets->map(function ($set) {
+                        return [
+                            'weight' => $set->weight,
+                            'reps' => $set->reps,
+                            'rest_time' => $set->rest_time,
+                            'set_number' => $set->set_number,
+                        ];
+                    }),
                 ];
+                if ($entry->notes) {
+                    $data['notes'] = $entry->notes;
+                }
+                return $data;
             });
 
         return view('exercises.show', compact('exercise', 'progress'));
@@ -71,12 +91,26 @@ class ExerciseController extends Controller
 
         $validated = $request->validate([
             'date' => 'required|date|before_or_equal:today',
-            'weight' => 'required|numeric|min:0',
-            'reps' => 'required|integer|min:1',
+            'sets' => 'required|array|min:1',
+            'sets.*.weight' => 'required|numeric|min:0',
+            'sets.*.reps' => 'required|integer|min:1',
+            'sets.*.rest_time' => 'nullable|integer|min:0',
             'notes' => 'nullable|string',
         ]);
 
-        $progress = $exercise->progress()->create($validated);
+        $progress = $exercise->progress()->create([
+            'date' => $validated['date'],
+            'notes' => $validated['notes'] ?? null,
+        ]);
+
+        foreach ($validated['sets'] as $index => $set) {
+            $progress->sets()->create([
+                'weight' => $set['weight'],
+                'reps' => $set['reps'],
+                'rest_time' => $set['rest_time'] ?? null,
+                'set_number' => $index + 1,
+            ]);
+        }
 
         return redirect()->route('exercises.show', $exercise)
             ->with('success', 'Progress added successfully.');

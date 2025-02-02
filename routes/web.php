@@ -18,11 +18,11 @@ Route::middleware('guest')->group(function () {
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Landing/Home page routes
+Route::get('/', [App\Http\Controllers\LandingController::class, 'index'])->name('home');
+
 // Protected Routes
 Route::middleware('auth')->group(function () {
-    // Home page (Exercise Progress)
-    Route::get('/', [ExerciseController::class, 'index'])->name('home');
-
     // Calorie Calculator Routes
     Route::get('/calories', [WeightLogController::class, 'calorieCalculator'])->name('calories.calculator');
     Route::post('/calories/calculate', [WeightLogController::class, 'calculateCalories'])->name('calories.calculate');
@@ -32,7 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/exercises/create', [ExerciseController::class, 'create'])->name('exercises.create');
     Route::post('/exercises', [ExerciseController::class, 'store'])->name('exercises.store');
     Route::get('/exercises/{exercise}', [ExerciseController::class, 'show'])->name('exercises.show');
-    Route::post('/exercises/{exercise}/progress', [ExerciseController::class, 'addProgress'])->name('exercises.progress.add');
+    Route::post('/exercises/{exercise}/progress', [ExerciseController::class, 'addProgress'])->name('exercises.progress.store');
     Route::delete('/exercises/{exercise}', [ExerciseController::class, 'destroy'])->name('exercises.destroy');
 
     // Weight Tracking Routes
@@ -46,4 +46,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/meals', [MealLogController::class, 'store'])->name('meals.store');
     Route::delete('/meals/{mealLog}', [MealLogController::class, 'destroy'])->name('meals.destroy');
     Route::get('/meals/history', [MealLogController::class, 'history'])->name('meals.history');
+
+    // Lift Routes
+    Route::get('/lifts', [LiftController::class, 'index'])->name('lifts.index');
+    Route::get('/lifts/create', [LiftController::class, 'create'])->name('lifts.create');
+    Route::post('/lifts', [LiftController::class, 'store'])->name('lifts.store');
+    Route::get('/lifts/{lift}/edit', [LiftController::class, 'edit'])->name('lifts.edit');
+    Route::put('/lifts/{lift}', [LiftController::class, 'update'])->name('lifts.update');
+    Route::delete('/lifts/{lift}', [LiftController::class, 'destroy'])->name('lifts.destroy');
 });
