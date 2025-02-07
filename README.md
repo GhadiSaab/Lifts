@@ -1,6 +1,7 @@
 # Workout Logger
 
 A comprehensive web application for tracking your fitness journey, built with Laravel. Track your workouts, monitor your nutrition, and achieve your fitness goals.
+Deployed : lifts.kesug.com
 
 ## Features
 
