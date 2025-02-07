@@ -95,11 +95,19 @@ class WeightLogController extends Controller
 
         $tdee = $bmr * $multipliers[$validated['activity_level']];
 
+        // Calculate macros (40% protein, 30% carbs, 30% fats)
+        $macros = [
+            'protein' => round(($tdee * 0.4) / 4), // 4 calories per gram
+            'carbs' => round(($tdee * 0.3) / 4),
+            'fats' => round(($tdee * 0.3) / 9) // 9 calories per gram
+        ];
+
         return view('calories.result', [
             'bmr' => round($bmr),
             'tdee' => round($tdee),
             'weight_loss' => round($tdee - 500),
-            'weight_gain' => round($tdee + 500)
+            'weight_gain' => round($tdee + 500),
+            'macros' => $macros
         ]);
     }
 }

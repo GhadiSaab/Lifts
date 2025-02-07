@@ -287,6 +287,10 @@ document.addEventListener('DOMContentLoaded', function() {
             plugins: {
                 tooltip: {
                     callbacks: {
+                        title: (context) => {
+                            const date = new Date(context[0].label);
+                            return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                        },
                         label: function(context) {
                             const entry = chartData[context.dataIndex];
                             return `Weight: ${entry.weight}kg`;

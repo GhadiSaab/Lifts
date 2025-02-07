@@ -25,10 +25,6 @@
             font-weight: 700;
         }
 
-        .landing-page {
-            margin-top: -76px;
-        }
-
         /* Button Styles */
         .btn {
             transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -125,14 +121,15 @@
             box-shadow: 0 8px 16px rgba(45, 55, 72, 0.1);
         }
     </style>
+    @yield('styles')
 </head>
 <body>
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg fixed-top @if(Route::is('home')) bg-transparent @else bg-white shadow-sm @endif">
         <div class="container">
             <a class="navbar-brand d-flex align-items-center" href="{{ url('/') }}">
-                <i class="fas fa-dumbbell me-2 @if(Route::is('home')) gradient-text @endif"></i>
-                <span class="@if(Route::is('home')) gradient-text @endif">FitTrack</span>
+                <i class="fas fa-dumbbell me-2"></i>
+                <span>FitTrack</span>
             </a>
             
             @auth
@@ -177,5 +174,6 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    @stack('scripts')
 </body>
 </html>

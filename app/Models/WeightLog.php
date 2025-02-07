@@ -25,8 +25,8 @@ class WeightLog extends Model
             ->get()
             ->map(function ($log) {
                 return [
-                    'date' => $log->date->format('Y-m-d'),
-                    'weight' => $log->weight,
+                    'x' => $log->date->format('Y-m-d'),
+                    'y' => $log->weight,
                 ];
             });
     }

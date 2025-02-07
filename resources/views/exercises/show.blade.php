@@ -24,8 +24,8 @@
         <div>
             <h1 class="mb-2">{{ $exercise->name }}</h1>
             <div class="d-flex align-items-center gap-3">
-                <span class="badge bg-{{ getMuscleGroupColor($exercise->muscle_group) }}">
-                    <i class="fas {{ getMuscleGroupIcon($exercise->muscle_group) }} me-1"></i>
+                <span class="badge bg-{{ \App\Helpers\MuscleGroupHelper::getColor($exercise->muscle_group) }}">
+                    <i class="fas @muscleGroupIcon($exercise->muscle_group) me-1"></i>
                     {{ $exercise->muscle_group }}
                 </span>
                 @if($exercise->notes)
@@ -177,33 +177,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
-@php
-function getMuscleGroupColor($group) {
-    return match($group) {
-        'Chest' => 'danger',
-        'Back' => 'primary',
-        'Legs' => 'success',
-        'Triceps' => 'info',
-        'Biceps' => 'warning',
-        'Abs' => 'secondary',
-        'Cardio' => 'dark',
-        default => 'secondary'
-    };
-}
-
-function getMuscleGroupIcon($group) {
-    return match($group) {
-        'Chest' => 'fa-dumbbell',
-        'Back' => 'fa-arrows-up-down',
-        'Legs' => 'fa-person-walking',
-        'Triceps' => 'fa-hand-fist',
-        'Biceps' => 'fa-hand-back-fist',
-        'Abs' => 'fa-circle',
-        'Cardio' => 'fa-heart-pulse',
-        default => 'fa-dumbbell'
-    };
-}
-@endphp
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -430,19 +403,23 @@ document.addEventListener('DOMContentLoaded', function() {
                         }
                     },
                     plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const dataIndex = context.dataIndex;
-                                    const datasetIndex = context.datasetIndex;
-                                    const entry = sortedData[dataIndex];
-                                    const set = entry.sets[datasetIndex];
-                                    return set ? 
-                                        `Weight: ${set.weight}kg, Reps: ${set.reps}` : 
-                                        `Weight: ${context.parsed.y}kg`;
-                                }
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => {
+                                const date = new Date(context[0].raw.x);
+                                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                            },
+                            label: function(context) {
+                                const dataIndex = context.dataIndex;
+                                const datasetIndex = context.datasetIndex;
+                                const entry = sortedData[dataIndex];
+                                const set = entry.sets[datasetIndex];
+                                return set ? 
+                                    `Weight: ${set.weight}kg, Reps: ${set.reps}` : 
+                                    `Weight: ${context.parsed.y}kg`;
                             }
                         }
+                    }
                     },
                     interaction: {
                         intersect: false,

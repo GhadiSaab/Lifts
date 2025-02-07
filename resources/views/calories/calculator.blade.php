@@ -25,8 +25,8 @@
                             <label for="weight" class="form-label">Weight (kg)</label>
                             <input type="number" class="form-control" name="weight" id="weight" 
                                 step="0.1" required min="20" placeholder="e.g., 70">
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
+                            <div class="valid-feedback" style="color: var(--blood-orange); position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                                ✓
                             </div>
                         </div>
 
@@ -34,8 +34,8 @@
                             <label for="height" class="form-label">Height (cm)</label>
                             <input type="number" class="form-control" name="height" id="height" 
                                 required min="100" placeholder="e.g., 175">
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
+                            <div class="valid-feedback" style="color: var(--blood-orange); position: absolute; right: 10px; top: 50%; transform: translateY(-50%);">
+                                ✓
                             </div>
                         </div>
 
@@ -65,7 +65,7 @@
 
                         <div class="mb-4">
                             <label for="activity" class="form-label">Activity Level</label>
-                            <select class="form-select" name="activity" id="activity" required>
+                            <select class="form-select" name="activity_level" id="activity_level" required>
                                 <option value="">Select activity level</option>
                                 <option value="sedentary">
                                     <i class="fas fa-couch"></i> Sedentary (little or no exercise)

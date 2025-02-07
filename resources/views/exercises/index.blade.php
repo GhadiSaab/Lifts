@@ -76,8 +76,8 @@
                     </a>
                     @foreach($muscleGroups as $group)
                         <a href="{{ route('exercises.index', ['muscle_group' => $group]) }}" 
-                            class="btn btn-outline-{{ getMuscleGroupColor($group) }} {{ request('muscle_group') == $group ? 'active' : '' }}">
-                            <i class="fas {{ getMuscleGroupIcon($group) }} me-2"></i>{{ $group }}
+                            class="btn btn-outline-{{ \App\Helpers\MuscleGroupHelper::getColor($group) }} {{ request('muscle_group') == $group ? 'active' : '' }}">
+                            <i class="fas @muscleGroupIcon($group) me-2"></i>{{ $group }}
                         </a>
                     @endforeach
                 </div>
@@ -90,8 +90,8 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="card-title mb-1">{{ $exercise->name }}</h5>
-                                    <span class="badge bg-{{ getMuscleGroupColor($exercise->muscle_group) }}">
-                                        <i class="fas {{ getMuscleGroupIcon($exercise->muscle_group) }} me-1"></i>
+                                    <span class="badge bg-{{ \App\Helpers\MuscleGroupHelper::getColor($exercise->muscle_group) }}">
+                                        <i class="fas @muscleGroupIcon($exercise->muscle_group) me-1"></i>
                                         {{ $exercise->muscle_group }}
                                     </span>
                                 </div>
@@ -126,11 +126,19 @@
                                 @php
                                     $latestProgress = $exercise->progress->first();
                                     $progressPercentage = 0;
-                                    if ($latestProgress && $latestProgress->sets->isNotEmpty()) {
-                                        $firstWeight = $exercise->progress->last()->sets->first()->weight;
-                                        $currentWeight = $latestProgress->sets->first()->weight;
-                                        $progressPercentage = $firstWeight > 0 ? 
-                                            min(100, round(($currentWeight - $firstWeight) / $firstWeight * 100)) : 0;
+                                    
+                                    if ($latestProgress && $latestProgress->sets->isNotEmpty() && 
+                                        $exercise->progress->last() && $exercise->progress->last()->sets->isNotEmpty()) {
+                                        
+                                        $firstSet = $exercise->progress->last()->sets->first();
+                                        $latestSet = $latestProgress->sets->first();
+                                        
+                                        if ($firstSet && $latestSet) {
+                                            $firstWeight = $firstSet->weight;
+                                            $currentWeight = $latestSet->weight;
+                                            $progressPercentage = $firstWeight > 0 ? 
+                                                min(100, round(($currentWeight - $firstWeight) / $firstWeight * 100)) : 0;
+                                        }
                                     }
                                 @endphp
                                 <div class="progress mb-3" style="height: 8px;">
@@ -143,7 +151,11 @@
                                 </div>
                                 <div class="d-flex justify-content-between text-muted small">
                                     <span>Last: {{ $latestProgress->date->format('M d, Y') }}</span>
-                                    <span>{{ $latestProgress->sets->first()->weight }}kg × {{ $latestProgress->sets->first()->reps }}</span>
+                                    @if($latestProgress->sets->isNotEmpty() && $latestProgress->sets->first())
+                                        <span>{{ $latestProgress->sets->first()->weight }}kg × {{ $latestProgress->sets->first()->reps }}</span>
+                                    @else
+                                        <span>No sets recorded</span>
+                                    @endif
                                 </div>
                             @else
                                 <p class="text-muted mb-0">No progress recorded yet</p>
@@ -334,33 +346,6 @@
 }
 </style>
 
-@php
-function getMuscleGroupColor($group) {
-    return match($group) {
-        'Chest' => 'danger',
-        'Back' => 'primary',
-        'Legs' => 'success',
-        'Triceps' => 'info',
-        'Biceps' => 'warning',
-        'Abs' => 'secondary',
-        'Cardio' => 'dark',
-        default => 'secondary'
-    };
-}
-
-function getMuscleGroupIcon($group) {
-    return match($group) {
-        'Chest' => 'fa-dumbbell',
-        'Back' => 'fa-arrows-up-down',
-        'Legs' => 'fa-person-walking',
-        'Triceps' => 'fa-hand-fist',
-        'Biceps' => 'fa-hand-back-fist',
-        'Abs' => 'fa-circle',
-        'Cardio' => 'fa-heart-pulse',
-        default => 'fa-dumbbell'
-    };
-}
-@endphp
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

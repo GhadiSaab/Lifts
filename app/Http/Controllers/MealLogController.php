@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\MealLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class MealLogController extends Controller
 {
@@ -62,17 +63,23 @@ class MealLogController extends Controller
 
         $dailySummaries = MealLog::where('user_id', Auth::id())
             ->whereBetween('date', [$startDate, $endDate])
+            ->select(
+                DB::raw('DATE(date) as date'),
+                DB::raw('SUM(calories) as total_calories'),
+                DB::raw('SUM(protein) as total_protein'),
+                DB::raw('SUM(carbs) as total_carbs'),
+                DB::raw('SUM(fat) as total_fat')
+            )
+            ->groupBy(DB::raw('DATE(date)'))
             ->orderBy('date', 'desc')
             ->get()
-            ->groupBy(function($log) {
-                return $log->date->format('Y-m-d');
-            })
-            ->map(function($logs) {
+            ->keyBy('date')
+            ->map(function($log) {
                 return [
-                    'total_calories' => $logs->sum('calories'),
-                    'total_protein' => $logs->sum('protein'),
-                    'total_carbs' => $logs->sum('carbs'),
-                    'total_fat' => $logs->sum('fat'),
+                    'total_calories' => $log->total_calories,
+                    'total_protein' => $log->total_protein,
+                    'total_carbs' => $log->total_carbs,
+                    'total_fat' => $log->total_fat,
                 ];
             });
 

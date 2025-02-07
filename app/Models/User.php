@@ -73,7 +73,10 @@ class User extends Authenticatable
             ->selectRaw('DATE(created_at) as date')
             ->groupBy('date')
             ->orderByDesc('date')
-            ->pluck('date');
+            ->get()
+            ->map(function ($item) {
+                return \Carbon\Carbon::parse($item->date)->startOfDay();
+            });
 
         if ($workoutDates->isEmpty()) {
             return 0;

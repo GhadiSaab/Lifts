@@ -26,21 +26,15 @@
 
                     <form action="{{ route('login') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
-                        <div class="mb-4 position-relative">
+                        <div class="mb-4">
                             <label for="email" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" 
                                 value="{{ old('email') }}" required>
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
-                            </div>
                         </div>
 
-                        <div class="mb-4 position-relative">
+                        <div class="mb-4">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" required>
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
-                            </div>
                         </div>
 
                         <div class="mb-4">
@@ -70,19 +64,6 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('input[required]');
-
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            if (this.checkValidity()) {
-                this.classList.add('is-valid');
-                this.classList.remove('is-invalid');
-            } else {
-                this.classList.remove('is-valid');
-                this.classList.add('is-invalid');
-            }
-        });
-    });
 
     form.addEventListener('submit', function(event) {
         if (!form.checkValidity()) {
@@ -95,32 +76,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.valid-feedback {
-    display: none;
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--blood-orange);
-    animation: checkmark 0.3s ease-in-out;
-}
-
-.form-control.is-valid {
-    border-color: var(--blood-orange);
-    padding-right: 2.5rem;
-    background-image: none;
-}
-
-.form-control.is-valid ~ .valid-feedback {
-    display: block;
-}
-
-@keyframes checkmark {
-    0% { transform: translateY(-50%) scale(0); }
-    70% { transform: translateY(-50%) scale(1.2); }
-    100% { transform: translateY(-50%) scale(1); }
-}
-
 .card {
     animation: slideIn 0.5s ease-out;
 }

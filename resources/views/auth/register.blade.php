@@ -26,40 +26,28 @@
 
                     <form action="{{ route('register') }}" method="POST" class="needs-validation" novalidate>
                         @csrf
-                        <div class="mb-4 position-relative">
+                        <div class="mb-4">
                             <label for="name" class="form-label">Name</label>
                             <input type="text" class="form-control" id="name" name="name" 
                                 value="{{ old('name') }}" required>
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
-                            </div>
                         </div>
 
-                        <div class="mb-4 position-relative">
+                        <div class="mb-4">
                             <label for="email" class="form-label">Email address</label>
                             <input type="email" class="form-control" id="email" name="email" 
                                 value="{{ old('email') }}" required>
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
-                            </div>
                         </div>
 
-                        <div class="mb-4 position-relative">
+                        <div class="mb-4">
                             <label for="password" class="form-label">Password</label>
                             <input type="password" class="form-control" id="password" name="password" 
                                 required minlength="8">
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
-                            </div>
                         </div>
 
-                        <div class="mb-4 position-relative">
+                        <div class="mb-4">
                             <label for="password_confirmation" class="form-label">Confirm Password</label>
                             <input type="password" class="form-control" id="password_confirmation" 
                                 name="password_confirmation" required>
-                            <div class="valid-feedback">
-                                <i class="fas fa-check"></i>
-                            </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-4">
@@ -82,31 +70,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('input[required]');
     const password = document.getElementById('password');
     const confirmPassword = document.getElementById('password_confirmation');
-
-    inputs.forEach(input => {
-        input.addEventListener('input', function() {
-            if (this.id === 'password_confirmation') {
-                if (this.value === password.value && this.value !== '') {
-                    this.classList.add('is-valid');
-                    this.classList.remove('is-invalid');
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                }
-            } else {
-                if (this.checkValidity()) {
-                    this.classList.add('is-valid');
-                    this.classList.remove('is-invalid');
-                } else {
-                    this.classList.remove('is-valid');
-                    this.classList.add('is-invalid');
-                }
-            }
-        });
-    });
 
     form.addEventListener('submit', function(event) {
         if (!form.checkValidity() || password.value !== confirmPassword.value) {
@@ -119,32 +84,6 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 <style>
-.valid-feedback {
-    display: none;
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--blood-orange);
-    animation: checkmark 0.3s ease-in-out;
-}
-
-.form-control.is-valid {
-    border-color: var(--blood-orange);
-    padding-right: 2.5rem;
-    background-image: none;
-}
-
-.form-control.is-valid ~ .valid-feedback {
-    display: block;
-}
-
-@keyframes checkmark {
-    0% { transform: translateY(-50%) scale(0); }
-    70% { transform: translateY(-50%) scale(1.2); }
-    100% { transform: translateY(-50%) scale(1); }
-}
-
 .card {
     animation: slideIn 0.5s ease-out;
 }

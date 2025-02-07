@@ -97,22 +97,34 @@
         // Initialize calorie history chart
         const ctx = document.getElementById('calorieChart').getContext('2d');
         const summaryData = @json($dailySummaries);
-        const dates = Object.keys(summaryData);
-        const calories = dates.map(date => summaryData[date].total_calories);
-        
+        const dataPoints = Object.keys(summaryData).map(dateStr => ({
+            x: dateStr,
+            y: summaryData[dateStr].total_calories
+        }));
+
         new Chart(ctx, {
             type: 'line',
             data: {
-                labels: dates,
                 datasets: [{
                     label: 'Daily Calories',
-                    data: calories,
+                    data: dataPoints,
                     borderColor: 'rgb(59, 130, 246)',
                     tension: 0.1
                 }]
             },
             options: {
                 responsive: true,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: (context) => {
+                                const date = new Date(context[0].label);
+                                return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+                            },
+                            label: (context) => `${context.raw.y} calories`
+                        }
+                    }
+                },
                 scales: {
                     y: {
                         beginAtZero: false,
@@ -122,9 +134,14 @@
                         }
                     },
                     x: {
+                        type: 'category',
+                        labels: Object.keys(summaryData),
                         title: {
                             display: true,
                             text: 'Date'
+                        },
+                        ticks: {
+                            autoSkip: false
                         }
                     }
                 }
