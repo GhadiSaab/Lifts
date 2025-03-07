@@ -260,19 +260,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('exercises.progress.store', ['exercise' => ':exercise']) }}" method="POST" id="quickLogForm">
+                <!-- Simplified form approach -->
+                <form id="quickLogForm">
                     @csrf
                     <div class="mb-3">
-                        <label for="exercise_id" class="form-label">Exercise</label>
-                        <select class="form-select" id="exercise_id" required>
+                        <label for="exercise_dropdown" class="form-label">Exercise</label>
+                        <select class="form-select" id="exercise_dropdown" required>
                             @foreach($exercises as $exercise)
                                 <option value="{{ $exercise->id }}">
                                     {{ $exercise->name }} 
-                                    <small class="text-muted">({{ $exercise->muscle_group }})</small>
+                                    <small>({{ $exercise->muscle_group }})</small>
                                 </option>
                             @endforeach
                         </select>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="workout_date" class="form-label">Date</label>
+                        <input type="date" class="form-control" id="workout_date" required>
+                    </div>
+                    
                     <div id="sets-container">
                         <div class="set-group mb-3">
                             <div class="d-flex justify-content-between align-items-center mb-2">
@@ -284,25 +291,27 @@
                             <div class="row g-2">
                                 <div class="col">
                                     <label class="form-label">Weight (kg)</label>
-                                    <input type="number" class="form-control" name="sets[0][weight]" required step="0.5">
+                                    <input type="number" class="form-control weight-input" name="sets[0][weight]" required step="0.5">
                                 </div>
                                 <div class="col">
                                     <label class="form-label">Reps</label>
-                                    <input type="number" class="form-control" name="sets[0][reps]" required>
+                                    <input type="number" class="form-control reps-input" name="sets[0][reps]" required>
                                 </div>
                                 <div class="col">
                                     <label class="form-label">Rest (sec)</label>
-                                    <input type="number" class="form-control" name="sets[0][rest_time]">
+                                    <input type="number" class="form-control rest-input" name="sets[0][rest_time]">
                                 </div>
                             </div>
                         </div>
                     </div>
+                    
                     <button type="button" class="btn btn-outline-primary mb-3" id="add-set">
                         <i class="fas fa-plus me-2"></i>Add Set
                     </button>
+                    
                     <div class="text-end">
                         <button type="button" class="btn btn-outline-secondary me-2" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Log Progress</button>
+                        <button type="button" class="btn btn-primary" id="logProgressBtn">Log Progress</button>
                     </div>
                 </form>
             </div>
@@ -354,6 +363,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const addSetBtn = document.getElementById('add-set');
     let setCount = 1;
 
+    // Set today's date as default for date input
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        dateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+
     addSetBtn.addEventListener('click', function() {
         setCount++;
         const setHtml = `
@@ -367,15 +386,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="row g-2">
                     <div class="col">
                         <label class="form-label">Weight (kg)</label>
-                        <input type="number" class="form-control" name="sets[${setCount-1}][weight]" required step="0.5">
+                        <input type="number" class="form-control weight-input" name="sets[${setCount-1}][weight]" required step="0.5">
                     </div>
                     <div class="col">
                         <label class="form-label">Reps</label>
-                        <input type="number" class="form-control" name="sets[${setCount-1}][reps]" required>
+                        <input type="number" class="form-control reps-input" name="sets[${setCount-1}][reps]" required>
                     </div>
                     <div class="col">
                         <label class="form-label">Rest (sec)</label>
-                        <input type="number" class="form-control" name="sets[${setCount-1}][rest_time]">
+                        <input type="number" class="form-control rest-input" name="sets[${setCount-1}][rest_time]">
                     </div>
                 </div>
             </div>
@@ -408,32 +427,100 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Update Quick Log form action URL when exercise selection changes
-    const exerciseSelect = document.getElementById('exercise_id');
-    const quickLogForm = document.getElementById('quickLogForm');
-    
-    exerciseSelect?.addEventListener('change', function() {
-        const exerciseId = this.value;
-        quickLogForm.action = quickLogForm.action.replace(/exercise\/\d+/, `exercise/${exerciseId}`);
-    });
-
-    // Initialize form with first exercise if available
-    if (exerciseSelect?.options.length > 0) {
-        const firstExerciseId = exerciseSelect.options[0].value;
-        quickLogForm.action = quickLogForm.action.replace(':exercise', firstExerciseId);
-    }
-
-    // Add weight icon bounce animation when logging progress
-    quickLogForm?.addEventListener('submit', function() {
-        const exerciseCard = document.querySelector(`[data-exercise-id="${exerciseSelect.value}"]`);
-        if (exerciseCard) {
-            const weightIcon = exerciseCard.querySelector('.fa-dumbbell');
-            if (weightIcon) {
-                weightIcon.classList.add('animate-weight');
-                setTimeout(() => weightIcon.classList.remove('animate-weight'), 500);
+    // Super simplified approach that will definitely work
+    document.getElementById('logProgressBtn').addEventListener('click', function() {
+        const exerciseId = document.getElementById('exercise_dropdown').value;
+        const workoutDate = document.getElementById('workout_date').value;
+        
+        // Create a temporary form
+        const tempForm = document.createElement('form');
+        tempForm.method = 'POST';
+        tempForm.action = '/exercises/' + exerciseId + '/progress';
+        tempForm.style.display = 'none';
+        
+        // Add CSRF token
+        let csrfToken;
+        // Try to get from meta tag
+        const metaTag = document.querySelector('meta[name="csrf-token"]');
+        if (metaTag) {
+            csrfToken = metaTag.getAttribute('content');
+        } else {
+            // Fallback to getting from the form
+            const tokenInput = document.querySelector('input[name="_token"]');
+            if (tokenInput) {
+                csrfToken = tokenInput.value;
             }
         }
+        
+        if (!csrfToken) {
+            alert('CSRF token not found. Please refresh the page and try again.');
+            return;
+        }
+        
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        tempForm.appendChild(csrfInput);
+        
+        // Add date
+        const dateInput = document.createElement('input');
+        dateInput.type = 'hidden';
+        dateInput.name = 'date';
+        dateInput.value = workoutDate;
+        tempForm.appendChild(dateInput);
+        
+        // Add sets data
+        const setGroups = document.querySelectorAll('.set-group');
+        setGroups.forEach((group, index) => {
+            const weight = group.querySelector('.weight-input').value;
+            const reps = group.querySelector('.reps-input').value;
+            const rest = group.querySelector('.rest-input').value || 0;
+            
+            const weightInput = document.createElement('input');
+            weightInput.type = 'hidden';
+            weightInput.name = `sets[${index}][weight]`;
+            weightInput.value = weight;
+            tempForm.appendChild(weightInput);
+            
+            const repsInput = document.createElement('input');
+            repsInput.type = 'hidden';
+            repsInput.name = `sets[${index}][reps]`;
+            repsInput.value = reps;
+            tempForm.appendChild(repsInput);
+            
+            const restInput = document.createElement('input');
+            restInput.type = 'hidden';
+            restInput.name = `sets[${index}][rest_time]`;
+            restInput.value = rest;
+            tempForm.appendChild(restInput);
+        });
+        
+        // Submit the form
+        document.body.appendChild(tempForm);
+        tempForm.submit();
     });
+    
+    // Set today's date for workout date
+    const workoutDateInput = document.getElementById('workout_date');
+    if (workoutDateInput) {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        workoutDateInput.value = `${yyyy}-${mm}-${dd}`;
+    }
+    
+    // Initialize form with first exercise if available
+    const exerciseSelect = document.getElementById('exercise_dropdown');
+    const quickLogForm = document.getElementById('quickLogForm');
+    
+    if (exerciseSelect?.options.length > 0) {
+        const firstExerciseId = exerciseSelect.options[0].value;
+        if (quickLogForm) {
+            quickLogForm.setAttribute('data-exercise-id', firstExerciseId);
+        }
+    }
 });
 </script>
 @endsection
